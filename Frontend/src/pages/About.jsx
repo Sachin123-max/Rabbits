@@ -1,86 +1,133 @@
 import { Link } from "react-router-dom";
 import aboutImage from "../assets/login.webp";
-import { HiOutlineUserGroup, HiOutlineStar, HiOutlineHeart } from "react-icons/hi";
+import {
+  HiOutlineUserGroup,
+  HiOutlineStar,
+  HiOutlineHeart,
+} from "react-icons/hi";
+import { motion } from "framer-motion";
+import Tilt from "react-parallax-tilt";
 
 const About = () => {
   return (
-    <div className="flex">
-      {/* Left Side - Content */}
-      <div className="w-full md:w-1/2 flex flex-col justify-center items-center p-8 md:p-12">
-        <div className="w-full max-w-md bg-white p-8 rounded-lg">
-          <div className="flex justify-center mb-6">
-            <h2 className="text-xl font-medium">Rabbit</h2>
-          </div>
-          <h2 className="text-3xl font-bold text-center mb-4">About Us</h2>
-          <p className="text-gray-600 mb-6 text-center">
-            Welcome to Rabbit - your destination for stylish and quality fashion.
-          </p>
-          
-          <div className="space-y-6">
-            <div className="flex items-start space-x-4">
-              <div className="flex-shrink-0">
-                <HiOutlineUserGroup className="h-8 w-8 text-black" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold">Our Story</h3>
-                <p className="text-gray-600 text-sm">
-                  Founded with a passion for fashion, Rabbit has been delivering quality apparel to fashion-conscious customers worldwide. We believe in sustainable fashion that makes you look good feel good.
-                </p>
-              </div>
-            </div>
+    <div className="min-h-screen flex flex-col md:flex-row bg-gradient-to-br from-black via-gray-900 to-black text-white overflow-hidden relative">
 
-            <div className="flex items-start space-x-4">
-              <div className="flex-shrink-0">
-                <HiOutlineStar className="h-8 w-8 text-black" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold">Our Mission</h3>
-                <p className="text-gray-600 text-sm">
-                  To provide high-quality, trendy fashion that empowers individuals to express their unique style. We're committed to sustainable practices and ethical manufacturing.
-                </p>
-              </div>
-            </div>
+      {/* Floating glow background */}
+      <div className="absolute w-[500px] h-[500px] bg-purple-600/30 blur-[120px] top-[-100px] left-[-100px] rounded-full" />
+      <div className="absolute w-[400px] h-[400px] bg-blue-500/20 blur-[120px] bottom-[-100px] right-[-100px] rounded-full" />
 
-            <div className="flex items-start space-x-4">
-              <div className="flex-shrink-0">
-                <HiOutlineHeart className="h-8 w-8 text-black" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold">Why Choose Us</h3>
-                <ul className="text-gray-600 text-sm list-disc list-inside">
-                  <li>Premium quality materials</li>
-                  <li>Trendy designs for every occasion</li>
-                  <li>Excellent customer service</li>
-                  <li>Fast and reliable shipping</li>
-                  <li>30-day easy returns</li>
-                </ul>
-              </div>
-            </div>
-          </div>
+      {/* LEFT CONTENT */}
+      <motion.div
+        initial={{ x: -100, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        transition={{ duration: 0.8 }}
+        className="w-full md:w-1/2 flex items-center justify-center p-6"
+      >
+        <Tilt
+          tiltMaxAngleX={12}
+          tiltMaxAngleY={12}
+          scale={1.02}
+          transitionSpeed={1500}
+          className="w-full max-w-md"
+        >
+          <div className="bg-white/10 backdrop-blur-xl border border-white/20 p-8 rounded-2xl shadow-2xl">
 
-          <div className="mt-8 text-center">
-            <p className="text-gray-600 mb-4">Want to learn more?</p>
-            <Link
-              to="/contact"
-              className="inline-block bg-black text-white px-6 py-3 rounded-lg font-semibold hover:bg-gray-800 transition"
+            <motion.h2
+              animate={{ y: [0, -5, 0] }}
+              transition={{ repeat: Infinity, duration: 3 }}
+              className="text-3xl font-bold text-center mb-2"
             >
-              Contact Us
-            </Link>
-          </div>
-        </div>
-      </div>
+              About Rabbit 🐰
+            </motion.h2>
 
-      {/* Right Side - Image */}
-      <div className="hidden md:block w-1/2 bg-gray-800">
-        <div className="h-full flex flex-col justify-center items-center p-12">
-          <img
+            <p className="text-center text-gray-300 mb-6">
+              Premium fashion brand built for modern lifestyle
+            </p>
+
+            <Feature
+              icon={<HiOutlineUserGroup />}
+              title="Our Story"
+              text="Built with passion for fashion and innovation, delivering premium clothing worldwide."
+            />
+
+            <Feature
+              icon={<HiOutlineStar />}
+              title="Our Mission"
+              text="To empower individuals with stylish, sustainable and high-quality fashion."
+            />
+
+            <Feature
+              icon={<HiOutlineHeart />}
+              title="Why Choose Us"
+              list={[
+                "Premium quality materials",
+                "Trendy modern designs",
+                "Fast worldwide shipping",
+                "Easy 30-day returns",
+              ]}
+            />
+
+            <div className="mt-8 text-center">
+              <Link
+                to="/contact"
+                className="inline-block bg-gradient-to-r from-purple-500 to-blue-500 px-6 py-3 rounded-xl font-semibold hover:scale-105 transition"
+              >
+                Contact Us
+              </Link>
+            </div>
+          </div>
+        </Tilt>
+      </motion.div>
+
+      {/* RIGHT IMAGE 3D SECTION */}
+      <motion.div
+        initial={{ x: 100, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        transition={{ duration: 0.8 }}
+        className="hidden md:flex w-1/2 items-center justify-center relative"
+      >
+        <Tilt
+          tiltMaxAngleX={15}
+          tiltMaxAngleY={15}
+          scale={1.05}
+          className="w-[70%]"
+        >
+          <motion.img
             src={aboutImage}
-            alt="About Us"
-            className="h-[750px] w-full object-cover opacity-80"
+            alt="about"
+            className="rounded-3xl shadow-2xl border border-white/20"
+            animate={{ y: [0, -10, 0] }}
+            transition={{ repeat: Infinity, duration: 4 }}
           />
-        </div>
-      </div>
+        </Tilt>
+      </motion.div>
     </div>
+  );
+};
+
+/* FEATURE CARD */
+const Feature = ({ icon, title, text, list }) => {
+  return (
+    <motion.div
+      whileHover={{ scale: 1.05 }}
+      className="flex items-start gap-4 mb-6 bg-white/5 p-4 rounded-xl border border-white/10"
+    >
+      <div className="text-2xl">{icon}</div>
+
+      <div>
+        <h3 className="font-semibold text-lg">{title}</h3>
+
+        {text && <p className="text-sm text-gray-300">{text}</p>}
+
+        {list && (
+          <ul className="text-sm text-gray-300 list-disc ml-4 mt-1 space-y-1">
+            {list.map((item, i) => (
+              <li key={i}>{item}</li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </motion.div>
   );
 };
 

@@ -5,129 +5,139 @@ import axios from "axios";
 
 const NewArrivals = () => {
   const scrollRef = useRef(null);
+  const autoScrollRef = useRef(null);
+
   const [isDragging, setIsDragging] = useState(false);
-  const [startX, setStartX] = useState(0);
-  const [scrollLeft, setScrollLeft] = useState(false);
+  const [products, setProducts] = useState([]);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
-  const [newArrivals, setNewArrivals] = useState([]);
 
+  // FETCH PRODUCTS
   useEffect(() => {
-    const fetchNewArrivals = async () => {
-      try {
-        const backendUrl = import.meta.env.VITE_BACKEND_URL;
-        console.log("Fetching new arrivals from:", `${backendUrl}/api/products/new-arrivals`);
-        
-        const response = await axios.get(`${backendUrl}/api/products/new-arrivals`);
-        console.log("New Arrivals Response:", response.data);
-        setNewArrivals(response.data);
-      } catch (error) {
-        console.error("Error fetching new arrivals:", error.message);
-        console.error("Error details:", error);
-      }
+    const fetchData = async () => {
+      const backendUrl = import.meta.env.VITE_BACKEND_URL;
+      const res = await axios.get(`${backendUrl}/api/products/new-arrivals`);
+      setProducts(res.data);
     };
-    fetchNewArrivals();
-  },[]);
-  
-  const handleMousedown = (e) => {
-    setIsDragging(true);
-    setStartX(e.pageX - scrollRef.current.offsetLeft);
-    setScrollLeft(scrollRef.current.scrollLeft);
-  };
+    fetchData();
+  }, []);
 
-  const handleMouseMove = (e) => {
-    if (!isDragging) return;
-    const x = e.pageX - scrollRef.current.offsetLeft;
-    const walk = x - startX;
-    scrollRef.current.scrollLeft = scrollLeft - walk;
-  };
-
-  const handleMouseUpOrLeave = () => {
-    setIsDragging(false);
-  };
-  const scroll = (direction) => {
-    const scrollAmount = direction === "left" ? -300 : 300;
-    scrollRef.current.scrollBy({ left: scrollAmount, behaviour: "smooth" });
-  };
-  //update scroll buttons
-  const updateScrollButtons = () => {
-    const container = scrollRef.current;
-
-    if (container) {
-      const leftScroll = container.scrollLeft;
-      const rightScrollable =container.scrooloWidth > leftScroll + container.clientWidth;
-
-      setCanScrollLeft(leftScroll > 0);
-      setCanScrollRight(rightScrollable);
-    }
-  };
+  // AUTO SCROLL
   useEffect(() => {
-    const container = scrollRef.current;
-    if (container) {
-      container.addEventListener("scroll", updateScrollButtons);
-      updateScrollButtons();
-      return () => container.removeEventListener("scroll", updateScrollButtons);
-    }
-  }, [newArrivals]);
+    const el = scrollRef.current;
+    if (!el) return;
+
+    autoScrollRef.current = setInterval(() => {
+      if (el.scrollLeft + el.clientWidth >= el.scrollWidth - 5) {
+        // LOOP BACK
+        el.scrollTo({ left: 0, behavior: "smooth" });
+      } else {
+        el.scrollBy({ left: 300, behavior: "smooth" });
+      }
+    }, 3000); // every 3 sec
+
+    return () => clearInterval(autoScrollRef.current);
+  }, [products]);
+
+  // PAUSE ON HOVER
+  const stopAutoScroll = () => clearInterval(autoScrollRef.current);
+
+  const startAutoScroll = () => {
+    const el = scrollRef.current;
+    autoScrollRef.current = setInterval(() => {
+      if (el.scrollLeft + el.clientWidth >= el.scrollWidth - 5) {
+        el.scrollTo({ left: 0, behavior: "smooth" });
+      } else {
+        el.scrollBy({ left: 300, behavior: "smooth" });
+      }
+    }, 3000);
+  };
+
+  // BUTTON SCROLL
+  const scroll = (dir) => {
+    scrollRef.current.scrollBy({
+      left: dir === "left" ? -300 : 300,
+      behavior: "smooth",
+    });
+  };
+
+  // UPDATE BUTTON STATE
+  const updateScroll = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    setCanScrollLeft(el.scrollLeft > 0);
+    setCanScrollRight(el.scrollWidth > el.scrollLeft + el.clientWidth);
+  };
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    el.addEventListener("scroll", updateScroll);
+    updateScroll();
+
+    return () => el.removeEventListener("scroll", updateScroll);
+  }, [products]);
+
   return (
-    <section className="py-16 px-4 lg:px-0">
-      <div className="container mx-auto text-center mb-10 relative">
-        <h2 className="text-3xl font-bold mb-4">Explore New Arrivals</h2>
-        <p className="text-lg text-gray-600 mb-8">
-          Discover the latest styles straight off the runway, Freshly added to
-          keep your wardrobr on the cutting edge of fashion.
-        </p>
-        {/*Scroll Buttons */}
-        <div className="absoulte right-0 bottom-30px flex space-x-2">
-          <button
-            onClick={() => scroll("left")}
-            disabled={!canScrollLeft}
-            className={`p-2 rounded border ${canScrollLeft ? "bg-white text-black" : "bg-text-200 text-gray-400  cursor-not-allowed"}`}
-          >
-            <FiChevronLeft className="text-2xl" />
-          </button>
-          <button
-            onClick={() => scroll("right")}
-            className={`p-2 rounded border ${
-              canScrollRight
-                ? "bg-white text-black"
-                : "bg-text-200 text-gray-400  cursor-not-allowed"
-            }`}
-          >
-            <FiChevronRight className="text-2xl" />
-          </button>
-        </div>
-      </div>
-      {/*Srollable content */}
-      <div
-        ref={scrollRef}
-        className={`container mx-auto overflow-x-scroll flex space-x-6 relative  ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
-        onMouseDown={handleMousedown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUpOrLeave}
-        onMouseLeave={handleMouseUpOrLeave}
-      >
-        {newArrivals.map((product) => (
-          <div
-            key={product._id}
-            className="min-w-[100%] sm:min-w[50%] lg:min-w-[30%] relative"
-          >
-            <img
-              src={product.images[0]?.url}
-              alt={product.images[0]?.altText || product.name}
-              className="w-full h-[500px] object-cover rounded-lg"
-              draggable="false"
-            />
-            <div className="absolute bottom-0 left-0 right-0 bg-opacity-50 backdrop-blur-md text-white p-4 rounded-b-lg">
-              <Link to={`/product/${product._id}`} className="block">
-                <h4 className="font-medium">{product.name}</h4>
-                <p className="mt-1">${product.price}</p>
-              </Link>
-            </div>
+    <section className="py-16 bg-gray-50">
+      <div className="container mx-auto px-4">
+
+        {/* HEADER */}
+        <div className="flex justify-between items-center mb-8">
+          <h2 className="text-3xl font-bold">New Arrivals 🔥</h2>
+
+          <div className="flex gap-2">
+            <button
+              onClick={() => scroll("left")}
+              className="p-2 rounded-full border hover:bg-black hover:text-white"
+            >
+              <FiChevronLeft />
+            </button>
+            <button
+              onClick={() => scroll("right")}
+              className="p-2 rounded-full border hover:bg-black hover:text-white"
+            >
+              <FiChevronRight />
+            </button>
           </div>
-        ))}
+        </div>
+
+        {/* SLIDER */}
+        <div
+          ref={scrollRef}
+          onMouseEnter={stopAutoScroll}
+          onMouseLeave={startAutoScroll}
+          className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth"
+        >
+          {products.map((item) => (
+            <div
+              key={item._id}
+              className="min-w-[260px] sm:min-w-[300px] bg-white rounded-xl shadow hover:shadow-lg transition"
+            >
+              <img
+                src={item.images[0]?.url}
+                alt={item.name}
+                className="w-full h-[320px] object-cover rounded-t-xl"
+              />
+
+              <div className="p-4">
+                <Link to={`/product/${item._id}`}>
+                  <h4 className="font-medium line-clamp-1">
+                    {item.name}
+                  </h4>
+                </Link>
+                <p className="text-gray-500 text-sm mt-1">
+                  ₹{item.price}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );
 };
+
 export default NewArrivals;

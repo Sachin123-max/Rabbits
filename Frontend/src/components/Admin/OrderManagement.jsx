@@ -1,63 +1,149 @@
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { fetchAllOrders, updateOrderStatus } from "../../redux/slices/adminOrderSlice";
 
 const OrderManagement = () => {
-    const orders = [
-        {
-            _id:12312312,
-            user:{
-                name:"John doe",
-            },
-            totalPrice:110,
-            status: "Processing",
-        },
-    ];
-     const handleStatusChange = (orderId, status) => {
-        console.log({id:orderId, status});
-     }
-  return (
-    <div className="max-w-full mx-auto p-6">
-        <h2 className="text-2xl font-bold mb-6">Order Management</h2>
-        <div className=" overflow-x-auto shadow-md sm:rounded-lg">
-            <table className="min-w-full text-left text-gray-500">
-                <thead className="bg-gray-100 text-xs uppercase text-gray-700">
-                    <tr>
-                        <th className="py-3 px-4">Order ID</th>
-                        <th className="py-3 px-4">Customer</th>
-                        <th className="py-3 px-4">Total Price</th>
-                        <th className="py-3 px-4">Status</th>
-                        <th className="py-3 px-4">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {orders.length > 0 ? (
-                        orders.map((order) => (
-                            <tr key={order._id} className="border-b hover:bg-gray-50 cursor-pointer">
-                                <td className="py-4 px-4 font-medium text-gray-900 whitespace-nowrap">#{order._id}</td>
-                                <td className="p-4">{order.user.name}</td>
-                                <td className="p-4">${order.totalPrice}</td>
-                                <td className="p-4">
-                                    <select value={order.status} onChange={(e)=>handleStatusChange(order._id, e.target.value)}
-                                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5" >
-                                        <option value="Processing">Processing</option>
-                                        <option value="Shipped">Shipped</option>
-                                        <option value="Delivered">Delivered</option>
-                                        <option value="Cancelled">Cancelled</option>
-                                    </select>
-                                </td>
-                                <td className="p-4">
-                                    <button onClick={( ) => handleStatusChange(order._id, "Delivered")} className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Mark as Delivered</button>
-                                </td>
-                            </tr>
-                        ))
-                    ):(
-                        <tr>
-                            <td colSpan={5} className="p-4 text-center text-gray-500">No Orders found</td>
-                        </tr>
-                    )} 
-                </tbody>
-            </table>
-        </div>
-    </div>
-  )
-}
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
-export default OrderManagement
+  const { user, loading: authLoading } = useSelector((state) => state.auth);
+  const { orders, loading: ordersLoading, error } = useSelector(
+    (state) => state.adminOrders
+  );
+
+  useEffect(() => {
+    if (authLoading) return;
+
+    setIsCheckingAuth(false);
+
+    if (!user || user.role !== "admin") {
+      navigate("/login");
+    } else {
+      dispatch(fetchAllOrders());
+    }
+  }, [dispatch, user, navigate, authLoading]);
+
+  const handleStatusChange = (orderId, status) => {
+    dispatch(updateOrderStatus({ id: orderId, status }));
+  };
+
+  if (isCheckingAuth || authLoading)
+    return (
+      <div className="h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
+        <p className="text-gray-600 animate-pulse">Loading...</p>
+      </div>
+    );
+
+  if (ordersLoading)
+    return <p className="text-center mt-10 animate-pulse">Loading orders...</p>;
+
+  if (error)
+    return <p className="text-red-500 text-center mt-10">Error: {error}</p>;
+
+  return (
+    <div className="min-h-screen p-6 bg-gradient-to-br from-slate-100 via-white to-slate-200">
+
+      {/* Title */}
+      <h2 className="text-3xl font-bold mb-6 text-gray-800 tracking-tight">
+        🚀 Order Management
+      </h2>
+
+      {/* Table Container (3D Card) */}
+      <div className="rounded-2xl shadow-2xl bg-white/70 backdrop-blur-md border border-gray-200 overflow-hidden transform transition-all duration-300 hover:scale-[1.01]">
+
+        <table className="min-w-full text-sm text-gray-700">
+          <thead className="bg-gray-900 text-white uppercase text-xs">
+            <tr>
+              <th className="p-4">Order ID</th>
+              <th className="p-4">Customer</th>
+              <th className="p-4">Total</th>
+              <th className="p-4">Status</th>
+              <th className="p-4">Action</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {orders?.length > 0 ? (
+              orders.map((order, index) => (
+                <tr
+                  key={order._id}
+                  className="border-b hover:bg-gray-50 transition-all duration-300 transform hover:scale-[1.01] hover:shadow-lg"
+                  style={{
+                    animation: `fadeIn 0.3s ease-in-out ${index * 0.05}s both`,
+                  }}
+                >
+                  <td className="p-4 font-medium text-gray-900">
+                    #{order._id.slice(-6)}
+                  </td>
+
+                  <td className="p-4">{order.user?.name}</td>
+
+                  <td className="p-4 font-semibold text-green-600">
+                    ${order.totalPrice.toFixed(2)}
+                  </td>
+
+                  {/* STATUS */}
+                  <td className="p-4">
+                    <select
+                      value={order.status}
+                      onChange={(e) =>
+                        handleStatusChange(order._id, e.target.value)
+                      }
+                      className="px-3 py-2 rounded-xl border bg-white shadow-sm focus:ring-2 focus:ring-blue-400 transition"
+                    >
+                      <option>Processing</option>
+                      <option>Shipped</option>
+                      <option>Delivered</option>
+                      <option>Cancelled</option>
+                    </select>
+                  </td>
+
+                  {/* ACTION */}
+                  <td className="p-4">
+                    <button
+                      onClick={() =>
+                        handleStatusChange(order._id, "Delivered")
+                      }
+                      className="px-4 py-2 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-lg hover:scale-105 active:scale-95 transition"
+                    >
+                      Mark Delivered
+                    </button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td
+                  colSpan={5}
+                  className="text-center p-6 text-gray-500"
+                >
+                  No Orders Found
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* 3D Animation Keyframes */}
+      <style>
+        {`
+          @keyframes fadeIn {
+            from {
+              opacity: 0;
+              transform: translateY(10px) scale(0.98);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0) scale(1);
+            }
+          }
+        `}
+      </style>
+    </div>
+  );
+};
+
+export default OrderManagement;

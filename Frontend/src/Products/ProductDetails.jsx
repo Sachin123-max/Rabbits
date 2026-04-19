@@ -2,25 +2,34 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { toast } from "sonner";
+import { FaHeart, FaStar } from "react-icons/fa";
 import ProductGrid from "./ProductGrid";
-import { fetchProductDetails, fetchSimilarProducts } from "../redux/slices/productsSlice";
+import {
+  fetchProductDetails,
+  fetchSimilarProducts,
+} from "../redux/slices/productsSlice";
 import { addToCart } from "../redux/slices/cartSlice";
 
-const ProductDetails = ({ productId}) => {
+const ProductDetails = ({ productId }) => {
   const { id } = useParams();
   const dispatch = useDispatch();
+
   const { selectedProduct, loading, error, similarProducts } = useSelector(
-    (state) => state.products,
+    (state) => state.products
   );
+
   const { user, guestId } = useSelector((state) => state.auth);
+
   const [mainImage, setMainImage] = useState(null);
   const [selectedSize, setSelectedSize] = useState("");
   const [selectedColor, setSelectedColor] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
+  const [wishlist, setWishlist] = useState(false);
 
   const productFetchId = productId || id;
 
+  // 🔥 Fetch product
   useEffect(() => {
     if (productFetchId) {
       dispatch(fetchProductDetails(productFetchId));
@@ -28,25 +37,34 @@ const ProductDetails = ({ productId}) => {
     }
   }, [dispatch, productFetchId]);
 
+  // 🔥 Set main image
   useEffect(() => {
     if (selectedProduct?.images?.length > 0) {
       setMainImage(selectedProduct.images[0].url);
     }
   }, [selectedProduct]);
 
-  const handleQuantityChange = (action) => {
-    if (action === "plus") setQuantity((prev) => prev + 1);
-    if (action === "minus" && quantity > 1) setQuantity((prev) => prev - 1);
-  };
+  // 🔥 Auto slider
+  useEffect(() => {
+    if (!selectedProduct?.images?.length) return;
+
+    let index = 0;
+    const interval = setInterval(() => {
+      index = (index + 1) % selectedProduct.images.length;
+      setMainImage(selectedProduct.images[index].url);
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [selectedProduct]);
 
   const handleAddToCart = () => {
     if (!selectedSize || !selectedColor) {
-      toast.error("Please select a size and color before adding to cart.", {
-        duration: 1000,
-      });
+      toast.error("Select size & color");
       return;
     }
+
     setIsButtonDisabled(true);
+
     dispatch(
       addToCart({
         productId: productFetchId,
@@ -55,190 +73,157 @@ const ProductDetails = ({ productId}) => {
         color: selectedColor,
         guestId,
         userId: user?._id,
-      }),
-    ).then(() => {
-        toast.success("Product added to cart!", { duration: 1000 });
       })
-      .finally(() => {
-        setIsButtonDisabled(false);
-      });
-
-    {/*setTimeout(()=>{
-      toast.success("Product added to cart!",{
-        duration:1000,
-      });
-      setIsButtonDisabled(false);
-    },500); */}
+    )
+      .then(() => toast.success("Added to cart"))
+      .finally(() => setIsButtonDisabled(false));
   };
 
-  if (loading) {
-    return (
-      <div className="p-6">
-        <div className="max-w-6xl mx-auto bg-white p-8 rounded-lg">
-          <p className="text-center text-lg">Loading....</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="p-6">
-        <div className="max-w-6xl mx-auto bg-white p-8 rounded-lg">
-          <p className="text-center text-lg text-red-500">Error: {error}</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!selectedProduct) {
-    return (
-      <div className="p-6">
-        <div className="max-w-6xl mx-auto bg-white p-8 rounded-lg">
-          <p className="text-center text-lg">Product not found</p>
-        </div>
-      </div>
-    );
-  }
+  if (loading) return <p className="text-center p-10">Loading...</p>;
+  if (error) return <p className="text-red-500 text-center">{error}</p>;
+  if (!selectedProduct) return <p>Product not found</p>;
 
   return (
-    <div className="p-6">
-      {selectedProduct && (
-        <div className="max-w-6xl mx-auto bg-white p-8 rounded-lg">
-        <div className="flex flex-col md:flex-row">
-          {/*Left Thumbnails */}
-          <div className="hidden md:flex flex-col space-y-4 mr-6">
-            {selectedProduct?.images?.map((image, index) => (
-              <img
-                key={index}
-                src={image.url}
-                alt={image.altText || `thumbnail ${index}`}
-                className={`w-20 h-30 object-cover rounded-lg cursor-pointer border ${mainImage === image.url ? "border-black" : "border-gray-300"}`}
-                onClick={() => setMainImage(image.url)}
-              />
-            ))}
+    <div className="p-6 max-w-7xl mx-auto">
+      <div className="grid md:grid-cols-2 gap-10">
+        
+        {/* LEFT SIDE */}
+        <div>
+          {/* Main Image + Zoom */}
+          <div className="overflow-hidden rounded-lg">
+            <img
+              src={mainImage}
+              alt=""
+              className="w-full h-[500px] object-cover transition-transform duration-500 hover:scale-110"
+            />
           </div>
-          {/*Main Image */}
-          <div className="md:w-1/2">
-            <div className="mb-4">
-              {mainImage && (
-                <img
-                  src={mainImage}
-                  alt="Main Product"
-                  className="w-full h-160 object-cover rounded-lg"
-                />
-              )}
-            </div>
-          </div>
-          {/*Mobile ThumbNails */}
-          <div className="md:hidden flex overScroll-x-scroll space-x-4 mb-4">
-            {selectedProduct?.images?.map((image, index) => (
-              <img
-                key={index}
-                src={image.url}
-                alt={image.altText || `Thumbnail ${index}`}
-                className={`w-20 h-20 object-cover rounded-lg cursor-pointer border ${mainImage === image.url ? "border-black" : "border-gray-300"}`}
-                onClick={() => setMainImage(image.url)}
-              />
-            ))}
-          </div>
-          {/*Right Side */}
-          <div className="md:w-1/2 md:ml-10">
-            <h1 className="text-2xl md:text-3xl font-semibold mb-2">
-              {selectedProduct?.name}
-            </h1>
-            <p className="text-lg text-gray-600 mb-1 line-through">
-              {selectedProduct?.originalPrice &&
-                `${selectedProduct.originalPrice}`}
-            </p>
-            <p className="text-xl text=gray-500 mb-2">
-              ${selectedProduct?.price}
-            </p>
-            <p className="text-gray-600 mb-4">{selectedProduct?.description}</p>
-            <div className="mb-4">
-              <p className=" text-gray-700">Color:</p>
-              <div className="flex gap-2 mt-2">
-                {selectedProduct?.colors?.map((color) => (
-                  <button
-                    key={color}
-                    onClick={() => setSelectedColor(color)}
-                    className={`w-8 h-8 rounded-full border ${selectedColor === color ? "border-4 border-black" : "border-gray-300"}`}
-                    style={{
-                      backgroundColor: color.toLocaleLowerCase(),
-                      filter: "brightness(0.5)",
-                    }}
-                  ></button>
-                ))}
-              </div>
-            </div>
 
-            <div className="mb-4">
-              <p className="text-gray-700">Size :</p>
-              <div className="flex gap-2 mt-2">
-                {selectedProduct?.sizes?.map((size) => (
-                  <button
-                    key={size}
-                    onClick={() => setSelectedSize(size)}
-                    className={`px-4 py-2 rounded border ${selectedSize === size ? "bg-black text-white" : ""}`}
-                  >
-                    {size}
-                  </button>
-                ))}
-              </div>
-            </div>
-            {/*Quantity of Product */}
-            <div className="mb-6">
-              <p className=" text-gray-700">Quantity:</p>
-              <div className="flex iotems-center space-x-4 mt-2">
+          {/* Thumbnails */}
+          <div className="flex gap-3 mt-4 overflow-x-auto scrollbar-hide">
+            {selectedProduct.images.map((img, i) => (
+              <img
+                key={i}
+                src={img.url}
+                onClick={() => setMainImage(img.url)}
+                className={`w-20 h-20 object-cover cursor-pointer border rounded ${
+                  mainImage === img.url ? "border-black" : ""
+                }`}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* RIGHT SIDE */}
+        <div>
+          <h1 className="text-3xl font-bold mb-2">
+            {selectedProduct.name}
+          </h1>
+
+          {/* ⭐ Ratings */}
+          <div className="flex items-center gap-1 mb-2">
+            {[...Array(5)].map((_, i) => (
+              <FaStar key={i} className="text-yellow-400" />
+            ))}
+            <span className="text-gray-500 ml-2">(120 reviews)</span>
+          </div>
+
+          <p className="text-gray-500 line-through">
+            ${selectedProduct.originalPrice}
+          </p>
+          <p className="text-2xl font-semibold text-black mb-4">
+            ${selectedProduct.price}
+          </p>
+
+          <p className="text-gray-600 mb-6">
+            {selectedProduct.description}
+          </p>
+
+          {/* COLOR */}
+          <div className="mb-4">
+            <p className="font-medium">Color</p>
+            <div className="flex gap-2 mt-2">
+              {selectedProduct.colors.map((color) => (
                 <button
-                  onClick={() => handleQuantityChange("minus")}
-                  className="px-2 py-1 bg-gray-200 rounded text-lg"
-                >
-                  -
-                </button>
-                <span className="text-lg">{quantity}</span>
-                <button
-                  onClick={() => handleQuantityChange("plus")}
-                  className="px-2 py-1 bg-gray-200 rounded text-lg"
-                >
-                  +
-                </button>
-              </div>
+                  key={color}
+                  onClick={() => setSelectedColor(color)}
+                  className={`w-8 h-8 rounded-full border ${
+                    selectedColor === color
+                      ? "ring-2 ring-black"
+                      : ""
+                  }`}
+                  style={{ backgroundColor: color.toLowerCase() }}
+                />
+              ))}
             </div>
+          </div>
+
+          {/* SIZE */}
+          <div className="mb-4">
+            <p className="font-medium">Size</p>
+            <div className="flex gap-2 mt-2">
+              {selectedProduct.sizes.map((size) => (
+                <button
+                  key={size}
+                  onClick={() => setSelectedSize(size)}
+                  className={`px-4 py-2 border rounded ${
+                    selectedSize === size
+                      ? "bg-black text-white"
+                      : ""
+                  }`}
+                >
+                  {size}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* QUANTITY */}
+          <div className="flex items-center gap-4 mb-6">
+            <button onClick={() => setQuantity(q => Math.max(1, q - 1))}>-</button>
+            <span>{quantity}</span>
+            <button onClick={() => setQuantity(q => q + 1)}>+</button>
+          </div>
+
+          {/* ACTION BUTTONS */}
+          <div className="flex gap-4">
             <button
               onClick={handleAddToCart}
               disabled={isButtonDisabled}
-              className={`bg-black text-white py-2 px-6 rounded w-full mb-4 ${isButtonDisabled ? "cursor-not-allowed" : "hover:bg-gray-900"}`}
+              className="bg-black text-white px-6 py-3 w-full rounded"
             >
-              {isButtonDisabled ? "Adding...." : "ADD TO CART"}
+              {isButtonDisabled ? "Adding..." : "Add to Cart"}
             </button>
 
-            <div className="mt-10 text-gray-700">
-              <h3 className="text-xl font-bold mb-4">Characteristics:</h3>
-              <table className="w-full text-left text-sm text-gray-600">
-                <tbody>
-                  <tr>
-                    <td className="py-1">Brand</td>
-                    <td className="py-1">{selectedProduct?.brand}</td>
-                  </tr>
-                  <tr>
-                    <td className="py-1">Material</td>
-                    <td className="py-1">{selectedProduct?.material}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+            {/* ❤️ Wishlist */}
+            <button
+              onClick={() => setWishlist(!wishlist)}
+              className={`p-3 border rounded ${
+                wishlist ? "text-red-500" : ""
+              }`}
+            >
+              <FaHeart />
+            </button>
+          </div>
+
+          {/* DETAILS */}
+          <div className="mt-8 text-sm text-gray-600">
+            <p><strong>Brand:</strong> {selectedProduct.brand}</p>
+            <p><strong>Material:</strong> {selectedProduct.material}</p>
           </div>
         </div>
-        <div className="mt-20">
-          <h2 className="text-2xl text-center font-medium mb-4">
-            You may Also Like
-          </h2>
-          <ProductGrid products = {similarProducts} loading={loading} error={error} />
-        </div>
       </div>
-      )}
-      
+
+      {/* SIMILAR PRODUCTS */}
+      <div className="mt-20">
+        <h2 className="text-2xl text-center mb-6">
+          You may also like
+        </h2>
+        <ProductGrid
+          products={similarProducts}
+          loading={loading}
+          error={error}
+        />
+      </div>
     </div>
   );
 };

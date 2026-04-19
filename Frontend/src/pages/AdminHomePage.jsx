@@ -1,27 +1,55 @@
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { fetchAllOrders } from "../redux/slices/adminOrderSlice";
+import { fetchAdminProducts } from "../redux/slices/adminProductSlice";
+import { useEffect, useState } from "react";
 
 const AdminHomePage = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+
+  const { user, loading: authLoading } = useSelector((state) => state.auth);
   const {
-    products,
+    products = [],
     loading: productsLoading,
     error: productsError,
   } = useSelector((state) => state.adminProducts);
   const {
-    orders,
-    totalOrders,
-    totalSales,
+    orders = [],
+    totalOrders = 0,
+    totalsales = 0,
     loading: ordersLoading,
     error: ordersError,
-  } = useSelector((state = state.adminOrders));
+  } = useSelector((state) => state.adminOrders);
 
   useEffect(() => {
+    // Wait for auth to finish loading
+    if (authLoading) {
+      return;
+    }
+
+    setIsCheckingAuth(false);
+
+    // Redirect if not admin
+    if (!user || user.role !== "admin") {
+      navigate("/login");
+      return;
+    }
+
+    // Fetch data if admin
     dispatch(fetchAdminProducts());
     dispatch(fetchAllOrders());
-  },[dispatch]);
-  
+  }, [dispatch, user, navigate, authLoading]);
+
+  // Show loading while checking auth
+  if (isCheckingAuth || authLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <p className="text-gray-500">Loading...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto p-6">
@@ -36,7 +64,7 @@ const AdminHomePage = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           <div className="p-4 shadow-md rounded-lg">
             <h2 className="text-xl font-semibold">Revenue</h2>
-            <p className="text-2xl">${totalSales.toFixed(2)}</p>
+            <p className="text-2xl">${totalsales?.toFixed(2) || "0.00"}</p>
           </div>
           <div className="p-4 shadow-md rounded-lg">
             <h2 className="text-xl font-semibold">Total Orders</h2>
@@ -47,7 +75,7 @@ const AdminHomePage = () => {
           </div>
           <div className="p-4 shadow-md rounded-lg">
             <h2 className="text-xl font-semibold">Total Product</h2>
-            <p className="text-2xl">{products.length}</p>
+            <p className="text-2xl">{products?.length || 0}</p>
             <Link
               to="/admin/products"
               className="text-blue-500 hover:underline"
@@ -71,15 +99,15 @@ const AdminHomePage = () => {
               </tr>
             </thead>
             <tbody>
-              {orders.length > 0 ? (
+              {orders && orders.length > 0 ? (
                 orders.map((order) => (
                   <tr
                     key={order._id}
                     className="border-b hover:bg-gray-50 cursor-pointer"
                   >
                     <td className="p-4">{order._id}</td>
-                    <td className="p-4">{order.user.name}</td>
-                    <td className="p-4">{order.totalPrice.toFixed(2)}</td>
+                    <td className="p-4">{order.user?.name || "Unknown"}</td>
+                    <td className="p-4">${order.totalPrice?.toFixed(2) || "0.00"}</td>
                     <td className="p-4">{order.status}</td>
                   </tr>
                 ))
@@ -98,4 +126,4 @@ const AdminHomePage = () => {
   );
 };
 
-export default AdminHomePage;
+export default AdminHomePage

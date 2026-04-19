@@ -1,89 +1,130 @@
 import { Link } from "react-router-dom";
-import {TbBrandMeta} from "react-icons/tb";
-import {IoLogoInstagram} from "react-icons/io";
-import {RiTwitterXLine} from "react-icons/ri";
-import {FiPhoneCall} from "react-icons/fi"
+import { motion } from "framer-motion";
+import { TbBrandMeta } from "react-icons/tb";
+import { IoLogoInstagram } from "react-icons/io";
+import { RiTwitterXLine } from "react-icons/ri";
+import { FiPhoneCall } from "react-icons/fi";
+
 const Footer = () => {
   return (
-    <footer className="border-t py-12">
-      <div className="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 px-4 lg:px-0">
-        <div>
-          <h3 className="text-lg text-gray-800 mb-4">Newsletter</h3>
-          <p className="text-gray-500 mb-4">
-            Be the first to hear about new products, exclusive events, and online offers.
+    <footer className="relative bg-gradient-to-br from-black via-gray-900 to-black text-white pt-16 overflow-hidden">
+
+      {/* glowing background */}
+      <div className="absolute w-[400px] h-[400px] bg-purple-500/20 blur-[140px] top-[-100px] left-[-100px] rounded-full" />
+      <div className="absolute w-[400px] h-[400px] bg-blue-500/20 blur-[140px] bottom-[-100px] right-[-100px] rounded-full" />
+
+      <div className="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-10 px-6 lg:px-0 relative z-10">
+
+        {/* NEWSLETTER */}
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="bg-white/5 border border-white/10 backdrop-blur-xl p-6 rounded-2xl shadow-xl"
+        >
+          <h3 className="text-lg mb-3 font-semibold">Newsletter 🚀</h3>
+          <p className="text-gray-300 text-sm mb-3">
+            Get updates on new drops & exclusive offers.
           </p>
-          <p className="font-medium text-sm text-gray-600 mb-6">Sign up and get 10% off your first order.</p>
-          {/*Newsletter form */}
+          <p className="text-gray-400 text-xs mb-5">
+            Sign up & get 10% off your first order
+          </p>
+
           <form className="flex">
-            <input type="email" placeholder="Enter your email" className="p-3 w-full text-sm border-t border-l border-b
-             border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-gray-500 transition-all" required />
-             <button type="submit" className="bg-black text-white px-6 py-3 text-sm rounded-r-md hover:bbg-gray-800 transition-all">Subscribe</button>
+            <input
+              type="email"
+              placeholder="Enter email"
+              className="w-full p-3 text-sm rounded-l-xl bg-white/10 border border-white/10 focus:outline-none"
+            />
+            <button
+              type="submit"
+              className="bg-gradient-to-r from-purple-500 to-blue-500 px-4 rounded-r-xl text-sm font-semibold"
+            >
+              Join
+            </button>
           </form>
-        </div>
-        {/*shop links */}
-        <div>
-          <h3 className="text-lg text-gray-800 mb-4">Shop</h3>
-          <ul className="space-y-2 text-gray-600">
-            <li>
-              <Link to="#" className="hover:text-gray-500 transition-colors">Men's Top Wear</Link>
-            </li>
-            <li>
-              <Link to="#" className="hover:text-gray-500 transition-colors">Women's Top Wear</Link>
-            </li>
-            <li>
-              <Link to="#" className="hover:text-gray-500 transition-colors">Men's Bottom Wear</Link>
-            </li>
-            <li>
-              <Link to="#" className="hover:text-gray-500 transition-colors">Women Bottom Wear</Link>
-            </li>
-          </ul>
-        </div>
-        {/*Support links */}
-         <div>
-          <h3 className="text-lg text-gray-800 mb-4">Support</h3>
-          <ul className="space-y-2 text-gray-600">
-            <li>
-              <Link to="/contact" className="hover:text-gray-500 transition-colors">Contact Us</Link>
-            </li>
-            <li>
-              <Link to="/about" className="hover:text-gray-500 transition-colors">About Us</Link>
-            </li>
-            <li>
-              <Link to="/faqs" className="hover:text-gray-500 transition-colors">FAQs</Link>
-            </li>
-            <li>
-<Link to="/features" className="hover:text-gray-500 transition-colors">Features</Link>
-            </li>
-          </ul>
-        </div>
-        {/*Follow Us */}
-        <div>
-          <h3 className="text-lg text-gray-800 mb-4">Follow Us</h3>
-          <div className="flex items-center space-x-4 mb-6">
-            <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer" className="hover:text-gray-300">
-             <TbBrandMeta className="h-5 w-5"/>            
-            </a>
-            <a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer" className="hover:text-gray-300">
-             <IoLogoInstagram className="h-5 w-5"/>            
-            </a>
-            <a href="https://www.twitter.com" target="_blank" rel="noopener noreferrer" className="hover:text-gray-300">
-             <RiTwitterXLine className="h-4 w-4"/>            
-            </a>
+        </motion.div>
+
+        {/* SHOP */}
+        <FooterCard title="Shop">
+          <FooterLink text="Men's Top Wear" />
+          <FooterLink text="Women's Top Wear" />
+          <FooterLink text="Men's Bottom Wear" />
+          <FooterLink text="Women's Bottom Wear" />
+        </FooterCard>
+
+        {/* SUPPORT */}
+        <FooterCard title="Support">
+          <FooterLink to="/contact" text="Contact Us" />
+          <FooterLink to="/about" text="About Us" />
+          <FooterLink to="/reviews" text="Reviews" />
+          <FooterLink to="/features" text="Features" />
+        </FooterCard>
+
+        {/* SOCIAL */}
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="bg-white/5 border border-white/10 backdrop-blur-xl p-6 rounded-2xl"
+        >
+          <h3 className="text-lg mb-4 font-semibold">Follow Us</h3>
+
+          <div className="flex gap-4 mb-6">
+            <SocialIcon icon={<TbBrandMeta />} />
+            <SocialIcon icon={<IoLogoInstagram />} />
+            <SocialIcon icon={<RiTwitterXLine />} />
           </div>
-          <p className=" text-gray-500">Call Us</p>
-          <p>
-            <FiPhoneCall className="inline-block mr-2"/>
-            0123-456-789
-          </p>
-        </div>
-      </div>
-      {/*Footer Bottom */}
-      <div className="container mx-auto mt-12 px-5 lg:px-0 border-gray-200 pt-6">
-        <p className="text-gray-500 text-sm tracking-tighter text-center"> 2026, complileTab. All Rights Reserved</p>
+
+          <div className="text-gray-300 text-sm">
+            <p className="mb-2">Call Us</p>
+            <div className="flex items-center gap-2">
+              <FiPhoneCall />
+              <span>0123-456-789</span>
+            </div>
+          </div>
+        </motion.div>
       </div>
 
+      {/* bottom */}
+      <div className="mt-14 border-t border-white/10 py-6 text-center text-gray-400 text-sm relative z-10">
+        © 2026 Rabbit. All Rights Reserved
+      </div>
     </footer>
-  )
-}
+  );
+};
 
-export default Footer
+/* reusable card */
+const FooterCard = ({ title, children }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 40 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.6 }}
+    className="bg-white/5 border border-white/10 backdrop-blur-xl p-6 rounded-2xl"
+  >
+    <h3 className="text-lg mb-4 font-semibold">{title}</h3>
+    <ul className="space-y-2 text-gray-300 text-sm">{children}</ul>
+  </motion.div>
+);
+
+/* link */
+const FooterLink = ({ to = "#", text }) => (
+  <li>
+    <Link to={to} className="hover:text-white transition">
+      {text}
+    </Link>
+  </li>
+);
+
+/* social icon */
+const SocialIcon = ({ icon }) => (
+  <motion.a
+    whileHover={{ scale: 1.2, rotate: 5 }}
+    href="#"
+    className="p-2 bg-white/10 rounded-full border border-white/10"
+  >
+    {icon}
+  </motion.a>
+);
+
+export default Footer;

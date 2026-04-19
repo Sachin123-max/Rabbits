@@ -1,7 +1,12 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 import contactImage from "../assets/login.webp";
-import { HiOutlineMail, HiOutlinePhone, HiOutlineLocationMarker } from "react-icons/hi";
+import {
+  HiOutlineMail,
+  HiOutlinePhone,
+  HiOutlineLocationMarker,
+} from "react-icons/hi";
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -12,130 +17,129 @@ const Contact = () => {
   });
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Handle form submission logic here
-    console.log("Form submitted:", formData);
-    alert("Thank you for your message! We'll get back to you soon.");
+    alert("Message sent successfully!");
     setFormData({ name: "", email: "", subject: "", message: "" });
   };
 
   return (
-    <div className="flex">
-      {/* Left Side - Form */}
-      <div className="w-full md:w-1/2 flex flex-col justify-center items-center p-8 md:p-12">
-        <form onSubmit={handleSubmit} className="w-full max-w-md bg-white p-8 rounded-lg border shadow-sm">
-          <div className="flex justify-center mb-6">
-            <h2 className="text-xl font-medium">Rabbit</h2>
-          </div>
-          <h2 className="text-2xl font-bold text-center mb-2">Contact Us</h2>
-          <p className="text-center text-gray-500 mb-6">
-            Have questions? We'd love to hear from you.
+    <div className="min-h-screen flex flex-col md:flex-row bg-gradient-to-br from-gray-900 via-black to-gray-800 text-white">
+      {/* LEFT - FORM */}
+      <motion.div
+        initial={{ x: -80, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        transition={{ duration: 0.6 }}
+        className="w-full md:w-1/2 flex items-center justify-center p-6"
+      >
+        <form
+          onSubmit={handleSubmit}
+          className="w-full max-w-md bg-white/10 backdrop-blur-xl border border-white/20 p-8 rounded-2xl shadow-2xl"
+        >
+          <h2 className="text-3xl font-bold text-center mb-2">Contact Us</h2>
+          <p className="text-center text-gray-300 mb-6">
+            We’d love to hear from you 🚀
           </p>
 
-          <div className="mb-4">
-            <label className="block text-sm font-semibold mb-2">Name</label>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-gray-500"
-              placeholder="Enter your name"
-              required
-            />
-          </div>
+          <Input
+            label="Name"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+          />
+          <Input
+            label="Email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            type="email"
+          />
+          <Input
+            label="Subject"
+            name="subject"
+            value={formData.subject}
+            onChange={handleChange}
+          />
 
           <div className="mb-4">
-            <label className="block text-sm font-semibold mb-2">Email</label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-gray-500"
-              placeholder="Enter your email address"
-              required
-            />
-          </div>
-
-          <div className="mb-4">
-            <label className="block text-sm font-semibold mb-2">Subject</label>
-            <input
-              type="text"
-              name="subject"
-              value={formData.subject}
-              onChange={handleChange}
-              className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-gray-500"
-              placeholder="How can we help you?"
-              required
-            />
-          </div>
-
-          <div className="mb-4">
-            <label className="block text-sm font-semibold mb-2">Message</label>
+            <label className="text-sm">Message</label>
             <textarea
               name="message"
+              rows="4"
               value={formData.message}
               onChange={handleChange}
-              className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-gray-500"
-              placeholder="Your message..."
-              rows="4"
-              required
+              className="w-full mt-1 p-3 rounded-lg bg-white/10 border border-white/20 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              placeholder="Write your message..."
             />
           </div>
 
-          <button
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             type="submit"
-            className="w-full bg-black text-white p-3 rounded-lg font-semibold hover:bg-gray-800 transition"
+            className="w-full bg-gradient-to-r from-blue-500 to-purple-600 py-3 rounded-lg font-semibold"
           >
             Send Message
-          </button>
+          </motion.button>
 
-          <p className="mt-6 text-center text-sm">
-            Or reach out to us directly{" "}
-            <Link to="/" className="text-blue-500 hover:underline">
-              Go to Home
+          <p className="text-center mt-4 text-sm text-gray-300">
+            Back to{" "}
+            <Link to="/" className="text-blue-400 hover:underline">
+              Home
             </Link>
           </p>
         </form>
-      </div>
+      </motion.div>
 
-      {/* Right Side - Contact Info & Image */}
-      <div className="hidden md:block w-1/2 bg-gray-800">
-        <div className="h-full flex flex-col justify-center items-center p-12">
-          <img
-            src={contactImage}
-            alt="Contact Us"
-            className="h-[750px] w-full object-cover opacity-80"
-          />
-          <div className="absolute mt-8 text-center text-white">
-            <h3 className="text-2xl font-bold mb-6">Get in Touch</h3>
-            <div className="space-y-4">
-              <div className="flex items-center justify-center space-x-2">
-                <HiOutlinePhone className="h-5 w-5" />
-                <span>0123-456-789</span>
-              </div>
-              <div className="flex items-center justify-center space-x-2">
-                <HiOutlineMail className="h-5 w-5" />
-                <span>support@rabbit.com</span>
-              </div>
-              <div className="flex items-center justify-center space-x-2">
-                <HiOutlineLocationMarker className="h-5 w-5" />
-                <span>123 Fashion Street, New York, NY 10001</span>
-              </div>
-            </div>
-          </div>
+      {/* RIGHT - IMAGE + INFO */}
+      <motion.div
+        initial={{ x: 80, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        transition={{ duration: 0.6 }}
+        className="hidden md:flex w-1/2 relative"
+      >
+        <img
+          src={contactImage}
+          alt="contact"
+          className="w-[85%] h-[85%] object-cover opacity-60 rounded-2xl mx-auto my-auto"
+        />
+
+        <div className="absolute inset-0 flex flex-col justify-center items-center text-center p-10">
+          <h3 className="text-4xl font-bold mb-8">Get in Touch</h3>
+
+          <Info icon={<HiOutlinePhone />} text="0123-456-789" />
+          <Info icon={<HiOutlineMail />} text="support@rabbit.com" />
+          <Info icon={<HiOutlineLocationMarker />} text="New York, USA" />
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };
+
+/* INPUT COMPONENT */
+const Input = ({ label, ...props }) => (
+  <div className="mb-4">
+    <label className="text-sm">{label}</label>
+    <input
+      {...props}
+      className="w-full mt-1 p-3 rounded-lg bg-white/10 border border-white/20 focus:outline-none focus:ring-2 focus:ring-blue-400"
+      placeholder={`Enter ${label}`}
+    />
+  </div>
+);
+
+/* INFO ITEM */
+const Info = ({ icon, text }) => (
+  <motion.div
+    whileHover={{ scale: 1.1 }}
+    className="flex items-center gap-2 mb-4 bg-white/10 px-4 py-2 rounded-full backdrop-blur"
+  >
+    {icon}
+    <span>{text}</span>
+  </motion.div>
+);
 
 export default Contact;

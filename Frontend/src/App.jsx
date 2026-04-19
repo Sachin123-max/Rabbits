@@ -12,7 +12,6 @@ import OrderDetailsPage from "./pages/OrderDetailsPage";
 import MyOrdersPage from "./pages/MyOrdersPage";
 import Contact from "./pages/Contact";
 import About from "./pages/About";
-import FAQs from "./pages/FAQs";
 import Features from "./pages/Features";
 import AdminLayout from "./components/Admin/AdminLayout";
 import AdminHomePage from "./pages/AdminHomePage";
@@ -20,11 +19,12 @@ import UserManagement from "./components/Admin/UserManagement";
 import ProductManagement from "./components/Admin/ProductManagement";
 import EditProductPage from "./components/Admin/EditProductPage";
 import OrderManagement from "./components/Admin/OrderManagement";
-import ProtectedRoute from "./components/Common/ProtectedRoute";
+//import ProtectedRoute from "./components/Common/ProtectedRoute";
 
 import { Provider } from "react-redux";
 import store from "./redux/store";
 import ProductDetails from "./Products/ProductDetails";
+import Review from "./pages/Review";
 
 const App = () => {
   return (
@@ -36,12 +36,12 @@ const App = () => {
             <Route index element={<Home />} />
             <Route path="login" element={<Login />} />
             <Route path="register" element={<Register />} />
-<Route path="profile" element={<Profile />} />
+            <Route path="profile" element={<Profile />} />
             <Route path="collection/:collection" element={<CollectionPage />} />
             <Route path="product/:id" element={<ProductDetails />} />
             <Route path="contact" element={<Contact />} />
-<Route path="about" element={<About />} />
-            <Route path="faqs" element={<FAQs />} />
+            <Route path="about" element={<About />} />
+            <Route path="reviews" element={<Review/>} />
             <Route path="features" element={<Features />} />
             <Route path="checkout" element={<Checkout />} />
             <Route
@@ -51,7 +51,7 @@ const App = () => {
             <Route path="order/:id" element={<OrderDetailsPage />} />
             <Route path="my-orders" element={<MyOrdersPage />} />
           </Route>
-          <Route path="/admin" element={<ProtectedRoute role="admin"><AdminLayout /></ProtectedRoute>}>
+          <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminHomePage />} />
             <Route path="users" element={<UserManagement />} />
             <Route path="products" element={<ProductManagement />} />

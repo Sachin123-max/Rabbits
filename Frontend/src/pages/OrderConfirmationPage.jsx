@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useDispatch, useSelector} from "react-redux";
 import {useNavigate} from "react-router-dom";
 import {clearCart} from "../redux/slices/cartSlice";
-const checkout = {
+{/*const checkout = {
     _id: "1234",
     createdAt: new Date(),
     checkoutItems:[
@@ -30,7 +30,7 @@ const checkout = {
         city:"New York",
         country:"USA",
     },
-}; 
+}; */}
 
 
 const OrderConfirmationPage = () => {
@@ -45,7 +45,7 @@ const OrderConfirmationPage = () => {
         dispatch(clearCart());
         localStorage.removeItem("cart");
     }else{
-        navigate("/my-order");
+        navigate("/my-orders");
     }
    },[checkout, dispatch, navigate]); 
     const calculateEstimatedDelivery = (createdAt) => {

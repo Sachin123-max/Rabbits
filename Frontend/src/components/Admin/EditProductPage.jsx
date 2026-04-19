@@ -1,6 +1,18 @@
-import { useState } from "react"
+import axios from "axios";
+import { useEffect, useState } from "react"
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate, useParams } from "react-router-dom";
+import { fetchProductDetails, updateProduct } from "../../redux/slices/productsSlice";
 
 const EditProductPage = () => {
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const {id} = useParams();
+    const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+    
+    const { user, loading: authLoading } = useSelector((state) => state.auth);
+    const {selectedProduct, loading, error } = useSelector((state) => state.products);
+    
     const [productData , setProductData] = useState({
         name:"",
         description:"",
@@ -16,13 +28,49 @@ const EditProductPage = () => {
         gender:"",
         images: [
             {
-                url:"https://picsum.photos/150?random=1",
+               // url:"https://picsum.photos/150?random=1",
             },
             {
-                url:"https://picsum.photos/150?random=2",
+                //url:"https://picsum.photos/150?random=2",
             },
         ],
     });
+
+    const [uploading, setUploading] = useState(false);
+
+    useEffect(() => {
+        // Wait for auth to finish loading
+        if (authLoading) {
+            return;
+        }
+        
+        setIsCheckingAuth(false);
+        
+        if(user && user?.role !== "admin"){
+            navigate("/login");
+        }
+    },[user, navigate, authLoading]);
+
+    useEffect(()=> {
+        if(id){
+            dispatch(fetchProductDetails(id));
+        }
+    },[dispatch, id]);
+
+    useEffect(() => {
+        if(selectedProduct){
+            setProductData(selectedProduct)
+        }
+    },[selectedProduct]);
+
+    // Show loading while checking auth
+    if (isCheckingAuth || authLoading) {
+        return (
+            <div className="flex items-center justify-center h-screen">
+                <p className="text-gray-500">Loading...</p>
+            </div>
+        );
+    }
 
     const handleChange = (e) => {
         const {name, value} = e.target;
@@ -31,13 +79,38 @@ const EditProductPage = () => {
     
     const handleImageUpload = async (e) => {
         const file = e.target.files[0];
-        console.log(file);
+        const formData = new FormData();
+        formData.append("image", file);
+        //console.log(file);
+
+        try {
+            setUploading(true);
+            const {data} = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/upload`, formData,
+                {
+                    headers:{"Content-Type":"multipart/form-data"},
+                }
+            );
+            setProductData((prevData) =>({
+                ...prevData,
+                images:[...prevData.images,{url:data.imageurl,altText: ""}],
+            }));
+            setUploading(false);
+        } catch (error) {
+            console.error(error);
+            setUploading(false);
+        }
     };
 
     const handleSubmit = (e)=>{
         e.preventDefault();
-        console.log(productData);
-    }
+        dispatch(updateProduct({id, productData}));
+        navigate("/admin/products");
+        //console.log(productData);
+    };
+
+    if(loading) return <p> Loading...</p>
+    if(error) return <p> Error: {error}</p>
+
   return (
     <div className="max-w-5xl mx-auto p-6 shadow-md rounded-md">
         <h2 className="text-3xl font-bold mb-6">Edit Product</h2>
@@ -88,6 +161,7 @@ const EditProductPage = () => {
             <div className="mb-6">
                 <label className="block font-semibold mb-2">Upload Image</label>
                 <input type="file" onChange={handleImageUpload} />
+                {uploading && <p>Uploading image...</p>}
                 <div className="flex gap-4 mt-4">
                     {productData.images.map((image,index)=>(
                         <div key={index}>

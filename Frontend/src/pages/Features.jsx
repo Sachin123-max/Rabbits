@@ -1,117 +1,108 @@
 import { Link } from "react-router-dom";
-import { HiOutlineTruck, HiOutlineShieldCheck, HiOutlineRefresh, HiOutlineSupport, HiOutlineCreditCard, HiOutlineStar } from "react-icons/hi";
+import {
+  HiOutlineTruck,
+  HiOutlineShieldCheck,
+  HiOutlineRefresh,
+  HiOutlineSupport,
+  HiOutlineCreditCard,
+  HiOutlineStar,
+} from "react-icons/hi";
+
+import { motion } from "framer-motion";
+import Tilt from "react-parallax-tilt";
 
 const Features = () => {
   return (
-    <div className="flex">
-      {/* Left Side - Content */}
-      <div className="w-full md:w-1/2 flex flex-col justify-center items-center p-8 md:p-12">
-        <div className="w-full max-w-md bg-white p-8 rounded-lg">
-          <div className="flex justify-center mb-6">
-            <h2 className="text-xl font-medium">Rabbit</h2>
-          </div>
-          <h2 className="text-3xl font-bold text-center mb-4">Our Features</h2>
-          <p className="text-gray-600 mb-6 text-center">
-            Discover what makes Rabbit your best choice for fashion shopping.
-          </p>
-          
-          <div className="space-y-6">
-            <div className="flex items-start space-x-4">
-              <div className="flex-shrink-0">
-                <HiOutlineTruck className="h-8 w-8 text-black" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold">Free Shipping</h3>
-                <p className="text-gray-600 text-sm">
-                  Enjoy free shipping on all orders above $50. Fast and reliable delivery to your doorstep.
-                </p>
-              </div>
-            </div>
+    <div className="min-h-screen flex flex-col md:flex-row bg-gradient-to-br from-black via-gray-900 to-black text-white relative overflow-hidden">
 
-            <div className="flex items-start space-x-4">
-              <div className="flex-shrink-0">
-                <HiOutlineShieldCheck className="h-8 w-8 text-black" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold">Secure Payment</h3>
-                <p className="text-gray-600 text-sm">
-                  Shop with confidence using our secure payment options. Your transactions are safe with us.
-                </p>
-              </div>
-            </div>
+      {/* glowing background */}
+      <div className="absolute w-[500px] h-[500px] bg-blue-500/20 blur-[140px] top-[-120px] left-[-120px] rounded-full" />
+      <div className="absolute w-[400px] h-[400px] bg-purple-500/20 blur-[140px] bottom-[-120px] right-[-120px] rounded-full" />
 
-            <div className="flex items-start space-x-4">
-              <div className="flex-shrink-0">
-                <HiOutlineRefresh className="h-8 w-8 text-black" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold">Easy Returns</h3>
-                <p className="text-gray-600 text-sm">
-                  Not satisfied? Return any item within 30 days for a full refund. No questions asked.
-                </p>
-              </div>
-            </div>
+      {/* LEFT CONTENT */}
+      <motion.div
+        initial={{ x: -100, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        transition={{ duration: 0.8 }}
+        className="w-full md:w-1/2 flex items-center justify-center p-6"
+      >
+        <Tilt
+          tiltMaxAngleX={12}
+          tiltMaxAngleY={12}
+          scale={1.02}
+          className="w-full max-w-md"
+        >
+          <div className="bg-white/10 backdrop-blur-xl border border-white/20 p-8 rounded-2xl shadow-2xl">
 
-            <div className="flex items-start space-x-4">
-              <div className="flex-shrink-0">
-                <HiOutlineSupport className="h-8 w-8 text-black" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold">24/7 Support</h3>
-                <p className="text-gray-600 text-sm">
-                  Our dedicated support team is available round the clock to assist you with any queries.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-start space-x-4">
-              <div className="flex-shrink-0">
-                <HiOutlineCreditCard className="h-8 w-8 text-black" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold">Easy Checkout</h3>
-                <p className="text-gray-600 text-sm">
-                  Fast and hassle-free checkout process with multiple payment options including PayPal.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-start space-x-4">
-              <div className="flex-shrink-0">
-                <HiOutlineStar className="h-8 w-8 text-black" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold">Quality Products</h3>
-                <p className="text-gray-600 text-sm">
-                  We curate only the best quality products from trusted brands and manufacturers.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-8 text-center">
-            <p className="text-gray-600 mb-4">Have questions?</p>
-            <Link
-              to="/contact"
-              className="inline-block bg-black text-white px-6 py-3 rounded-lg font-semibold hover:bg-gray-800 transition"
+            <motion.h2
+              animate={{ y: [0, -5, 0] }}
+              transition={{ repeat: Infinity, duration: 3 }}
+              className="text-3xl font-bold text-center mb-2"
             >
-              Contact Us
-            </Link>
-          </div>
-        </div>
-      </div>
+              Our Features ⚡
+            </motion.h2>
 
-      {/* Right Side - Image */}
-      <div className="hidden md:block w-1/2 bg-gray-800">
-        <div className="h-full flex flex-col justify-center items-center p-12">
-          <img
+            <p className="text-center text-gray-300 mb-6">
+              Everything you need for a premium shopping experience
+            </p>
+
+            <div className="space-y-5">
+              <Feature icon={<HiOutlineTruck />} title="Free Shipping" />
+              <Feature icon={<HiOutlineShieldCheck />} title="Secure Payment" />
+              <Feature icon={<HiOutlineRefresh />} title="Easy Returns" />
+              <Feature icon={<HiOutlineSupport />} title="24/7 Support" />
+              <Feature icon={<HiOutlineCreditCard />} title="Fast Checkout" />
+              <Feature icon={<HiOutlineStar />} title="Top Quality Products" />
+            </div>
+
+            <div className="mt-8 text-center">
+              <Link
+                to="/contact"
+                className="inline-block bg-gradient-to-r from-blue-500 to-purple-500 px-6 py-3 rounded-xl font-semibold hover:scale-105 transition"
+              >
+                Contact Us
+              </Link>
+            </div>
+          </div>
+        </Tilt>
+      </motion.div>
+
+      {/* RIGHT IMAGE 3D */}
+      <motion.div
+        initial={{ x: 100, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        transition={{ duration: 0.8 }}
+        className="hidden md:flex w-1/2 items-center justify-center"
+      >
+        <Tilt
+          tiltMaxAngleX={15}
+          tiltMaxAngleY={15}
+          scale={1.05}
+          className="w-[75%]"
+        >
+          <motion.img
             src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&q=80"
-            alt="Features"
-            className="h-[750px] w-full object-cover opacity-80"
+            alt="features"
+            className="rounded-3xl shadow-2xl border border-white/20"
+            animate={{ y: [0, -10, 0] }}
+            transition={{ repeat: Infinity, duration: 4 }}
           />
-        </div>
-      </div>
+        </Tilt>
+      </motion.div>
     </div>
+  );
+};
+
+/* FEATURE ITEM */
+const Feature = ({ icon, title }) => {
+  return (
+    <motion.div
+      whileHover={{ scale: 1.05 }}
+      className="flex items-center gap-4 bg-white/5 border border-white/10 p-3 rounded-xl backdrop-blur"
+    >
+      <div className="text-2xl">{icon}</div>
+      <h3 className="font-medium">{title}</h3>
+    </motion.div>
   );
 };
 

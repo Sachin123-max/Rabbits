@@ -1,131 +1,207 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { addUser, deleteUser, fetchUsers, updateUser } from "../../redux/slices/adminSlice";
+import {
+  addUser,
+  deleteUser,
+  fetchUsers,
+  updateUser,
+} from "../../redux/slices/adminSlice";
 
 const UserManagement = () => {
-    const dispatch = useDispatch();
-    const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-    const {user} = useSelector((state)=> state.auth);
-    const { users, loading, error} = useSelector((state)=> state.admin);
+  const { user, loading: authLoading } = useSelector((state) => state.auth);
+  const { users, loading, error } = useSelector((state) => state.admin);
 
-    useEffect(()=>{
-        if(user && user?.role !== "admin"){
-            navigate("/");
-        }
-    },[user, navigate]);
-    
-    useEffect(()=> {
-        if(user?.role === "admin"){
-            dispatch(fetchUsers());
-        }
-    },[dispatch, user])
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    role: "customer",
+  });
 
-    const [formData , setFormData] = useState({
-        name: "",
-        email: "",
-        password: "",
-        role:"customer", // Default role
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+
+  useEffect(() => {
+    if (!authLoading) {
+      setIsCheckingAuth(false);
+
+      if (user && user.role !== "admin") {
+        navigate("/login");
+      }
+    }
+  }, [user, navigate, authLoading]);
+
+  useEffect(() => {
+    if (user?.role === "admin") {
+      dispatch(fetchUsers());
+    }
+  }, [dispatch, user]);
+
+  if (isCheckingAuth || authLoading) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
+        <p className="animate-pulse text-gray-600">Loading...</p>
+      </div>
+    );
+  }
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    dispatch(addUser(formData));
+
+    setFormData({
+      name: "",
+      email: "",
+      password: "",
+      role: "customer",
     });
+  };
 
-    const handleChange =  (e) => {
-        setFormData({
-            ...formData,
-            [e.target.name]:e.target.value,
-        });
-    };
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        dispatch(addUser(formData));
-        //console.log(formData);
+  const handleRoleChange = (userId, newRole) => {
+    dispatch(updateUser({ id: userId, role: newRole }));
+  };
 
-        //Reset the form alter Submission
-        setFormData ({
-            name:"",
-            email:"",
-            password:"",
-            role:"customer",
-        });
-    };
-
-    const handleRoleChange = (userId , newRole) => {
-        dispatch(updateUser({id:userId, role:newRole}));
-       // console.log({id: userId, role: newRole})
+  const handleDeleteUser = (userId) => {
+    if (window.confirm("Are you sure you want to delete this user?")) {
+      dispatch(deleteUser(userId));
     }
+  };
 
-    const handleDeleteUser = (userId) => {
-        if(window.confirm("Are You sure u want to delete this user?")){
-            dispatch(deleteUser(userId));
-            //console.log("deleting user with Id", userId);
-        }
-    }
   return (
-    <div className="max-w-7xl mx-auto p-6">
-      <h2 className="text-2xl font-bold mb-6"> User Management</h2>
-      {loading && <p>Loading...</p>}
-      {error && <p>Error: error</p>}
-      {/*Add new user Form */}
-      <div className="p-6 rounded-lg mb-6">
-        <h3 className="text-lg font-bold mb-4">Add New User</h3>
-        <form onSubmit={handleSubmit}>
-            <div className="mb-4">
-                <label className="block text-gray-700">Name</label>
-                <input type="text" name="name" value={formData.name} onChange={handleChange} className="w-full p-2 border rounded"  required/>
-            </div>
-            <div className="mb-4">
-                <label className="block text-gray-700">Email</label>
-                <input type="email" name="email" value={formData.email} onChange={handleChange} className="w-full p-2 border rounded"  required/>
-            </div>
-            <div className="mb-4">
-                <label className="block text-gray-700">Password</label>
-                <input type="password" name="password" value={formData.password} onChange={handleChange} className="w-full p-2 border rounded"  required/>
-            </div>
-            <div className="mb-4">
-                <label className="block text-gray-700">Role</label>
-                <select name="role" value={formData.role} onChange={handleChange} className="w-full p-2 border rounded">
-                    <option value="customer">Customer</option>
-                    <option value="admin">Admin</option>
-                </select>
-            </div>
-            <button type="submit" className="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600">Add User</button>
+    <div className="min-h-screen p-6 bg-gradient-to-br from-slate-100 via-white to-slate-200">
+
+      {/* TITLE */}
+      <h2 className="text-3xl font-bold mb-6 text-gray-800">
+        👤 User Management
+      </h2>
+
+      {/* FORM CARD */}
+      <div className="bg-white/70 backdrop-blur-md border shadow-xl rounded-2xl p-6 mb-8">
+        <h3 className="text-lg font-semibold mb-4">➕ Add New User</h3>
+
+        <form onSubmit={handleSubmit} className="space-y-3">
+
+          <input
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            placeholder="Name"
+            className="w-full p-3 rounded-xl border focus:ring-2 focus:ring-blue-400"
+          />
+
+          <input
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            placeholder="Email"
+            className="w-full p-3 rounded-xl border focus:ring-2 focus:ring-blue-400"
+          />
+
+          <input
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+            placeholder="Password"
+            type="password"
+            className="w-full p-3 rounded-xl border focus:ring-2 focus:ring-blue-400"
+          />
+
+          <select
+            name="role"
+            value={formData.role}
+            onChange={handleChange}
+            className="w-full p-3 rounded-xl border"
+          >
+            <option value="customer">Customer</option>
+            <option value="admin">Admin</option>
+          </select>
+
+          <button className="w-full py-3 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold shadow-lg hover:scale-105 active:scale-95 transition">
+            Add User
+          </button>
+
         </form>
       </div>
-      {/*User List management */}
-      <div className="overflow-x-auto shadow-md sm:rounded-lg">
-        <table className="min-w-full text-left text-gray-500">
-            <thead className="bg-gray-100 text-sm uppercase text-gray-700">
-                <tr>
-                    <th className="py-3 px-4">Name</th>
-                    <th className="py-3 px-4">Email</th>
-                    <th className="py-3 px-4">Role</th>
-                    <th className="py-3 px-4">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {users.map((user) => {
-                    <tr key={user._id} className="border-b hover:bg-gray-50">
-                        <td className="p-4 font-medium text-gray-700 whitespace-nowrap">{user.name}</td>
-                        <td className="p-4">{user.email}</td>
-                        <td className="p-4">
-                            <select value={user.role} onChange={(e) => handleRoleChange(user._id, e.target.value)} 
-                            className="p-2 border rounded">
-                            <option value="customer"> Customer</option>
-                            <option value="admin"> Admin</option>
-                            </select>
-                        </td>
-                        <td className="p-4">
-                             <button onClick={() => handleDeleteUser(user._id)} className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
-                                Delete
-                             </button>
-                        </td>
-                    </tr>
-                })}
-            </tbody>
+
+      {/* TABLE CARD */}
+      <div className="bg-white/70 backdrop-blur-md border shadow-2xl rounded-2xl overflow-hidden">
+
+        <table className="w-full text-sm">
+          <thead className="bg-gray-900 text-white uppercase text-xs">
+            <tr>
+              <th className="p-4">Name</th>
+              <th className="p-4">Email</th>
+              <th className="p-4">Role</th>
+              <th className="p-4">Action</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {users?.map((userItem, index) => (
+              <tr
+                key={userItem._id}
+                className="border-b hover:bg-gray-50 transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg"
+                style={{
+                  animation: `fadeIn 0.3s ease-in-out ${index * 0.05}s both`,
+                }}
+              >
+                <td className="p-4 font-medium">{userItem.name}</td>
+
+                <td className="p-4 text-gray-600">{userItem.email}</td>
+
+                <td className="p-4">
+                  <select
+                    value={userItem.role}
+                    onChange={(e) =>
+                      handleRoleChange(userItem._id, e.target.value)
+                    }
+                    className="p-2 rounded-lg border"
+                  >
+                    <option value="customer">Customer</option>
+                    <option value="admin">Admin</option>
+                  </select>
+                </td>
+
+                <td className="p-4">
+                  <button
+                    onClick={() => handleDeleteUser(userItem._id)}
+                    className="px-3 py-1 rounded-lg bg-gradient-to-r from-red-500 to-pink-600 text-white shadow hover:scale-105 active:scale-95 transition"
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+
         </table>
       </div>
-    </div>
-  )
-}
 
-export default UserManagement
+      {/* ANIMATION */}
+      <style>
+        {`
+          @keyframes fadeIn {
+            from {
+              opacity: 0;
+              transform: translateY(10px) scale(0.98);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0) scale(1);
+            }
+          }
+        `}
+      </style>
+
+    </div>
+  );
+};
+
+export default UserManagement;
