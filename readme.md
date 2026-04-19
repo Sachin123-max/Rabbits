@@ -1,1 +1,1 @@
-# Rabbits Full Stack App
+# Rabbits Full Stack Mern App
