@@ -18,7 +18,7 @@ const app = express();
 
 // Configure CORS to allow requests from the frontend
 app.use(cors({
-  origin: ["http://localhost:5173", "http://127.0.0.1:5173"],
+  origin: ["http://localhost:5173", "http://127.0.0.1:5173","https://rabbits-5jpu.vercel.app" ], 
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"]
